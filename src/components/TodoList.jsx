@@ -1,13 +1,20 @@
+// src/components/TodoList.jsx
+import React from "react";
 import TodoItem from "./TodoItem";
 
-function TodoList({ todos }) {
+export default function TodoList({ todos, toggleComplete, deleteTodo, theme }) {
   return (
-    <ul>
-      {todos.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} />
+    <ul className="todo-list">
+      {todos.map((todo, index) => (
+        <TodoItem
+          key={index}
+          todo={todo}
+          index={index}
+          toggleComplete={toggleComplete}
+          deleteTodo={deleteTodo}
+          theme={theme}
+        />
       ))}
     </ul>
   );
 }
-
-export default TodoList
