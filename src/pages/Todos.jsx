@@ -1,41 +1,84 @@
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchTodos, addTodo, updateTodo, deleteTodo } from '../features/todos/todosSlice';
-import AddTodoForm from '../components/AddTodoForm';
-import TodoList from '../components/TodoList';
-import GitHubCorner from '../components/GitHubCorner';
+// src/pages/Todos.jsx
+import React, { useState, useEffect } from "react";
+import AddTodoForm from "../components/AddTodoForm";
+import TodoList from "../components/TodoList";
+import GitHubCorner from "../components/GitHubCorner"; // optional
+import "../CSS/main.css";
 
-const Todos = () => {
-  const dispatch = useDispatch();
-  const todos = useSelector(state => state.todos);
-  const [theme, setTheme] = useState(localStorage.getItem('savedTheme') || 'standard');
+export default function Todos() {
+  const [todos, setTodos] = useState([]);
+  const [theme, setTheme] = useState(
+    localStorage.getItem("savedTheme") || "standard"
+  );
 
-  useEffect(() => { dispatch(fetchTodos()); }, [dispatch]);
-  useEffect(() => { 
-    localStorage.setItem('savedTheme', theme); 
+  // Load todos from localStorage
+  useEffect(() => {
+    const savedTodos = JSON.parse(localStorage.getItem("todos")) || [];
+    setTodos(savedTodos);
+  }, []);
+
+  // Save todos to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  // Save theme to localStorage and update body class
+  useEffect(() => {
+    localStorage.setItem("savedTheme", theme);
     document.body.className = theme;
   }, [theme]);
 
-  const handleAdd = (text) => dispatch(addTodo(text));
-  const handleToggle = (todo) => dispatch(updateTodo({...todo, completed: !todo.completed}));
-  const handleDelete = (id) => dispatch(deleteTodo(id));
+  const addTodo = (todo) => {
+    setTodos([todo, ...todos]);
+  };
+
+  const toggleComplete = (index) => {
+    setTodos((prev) =>
+      prev.map((todo, i) =>
+        i === index ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+
+  const deleteTodo = (index) => {
+    setTodos((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <div>
-      <GitHubCorner />
-      <h1 id="title" className={theme === 'darker' ? 'darker-title' : ''}>Just do it.</h1>
+      <h1 id="title" className={theme === "darker" ? "darker-title" : ""}>
+        Todo App
+      </h1>
 
+      {/* Theme Selector */}
       <div className="flexrow-container">
-        <div className="theme-selector standard-theme" onClick={() => setTheme('standard')}></div>
-        <div className="theme-selector light-theme" onClick={() => setTheme('light')}></div>
-        <div className="theme-selector darker-theme" onClick={() => setTheme('darker')}></div>
+        <div
+          className="theme-selector standard-theme"
+          onClick={() => setTheme("standard")}
+        ></div>
+        <div
+          className="theme-selector light-theme"
+          onClick={() => setTheme("light")}
+        ></div>
+        <div
+          className="theme-selector darker-theme"
+          onClick={() => setTheme("darker")}
+        ></div>
       </div>
 
-      <AddTodoForm addTodo={handleAdd} theme={theme} />
-      <p id="datetime">{new Date().toLocaleString()}</p>
-      <TodoList todos={todos} toggleComplete={handleToggle} deleteTodo={handleDelete} theme={theme} />
+      {/* Add Todo Form */}
+      <AddTodoForm addTodo={addTodo} theme={theme} />
+
+      {/* Todo List */}
+      <TodoList
+        todos={todos}
+        toggleComplete={toggleComplete}
+        deleteTodo={deleteTodo}
+        theme={theme}
+      />
+
+      {/* GitHub corner */}
+      <GitHubCorner />
     </div>
   );
-};
-
-export default Todos;
+}
