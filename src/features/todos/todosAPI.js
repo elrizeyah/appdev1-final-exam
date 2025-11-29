@@ -1,29 +1,27 @@
-export const getTodosAPI = function () {
-    return fetch(`https://jsonplaceholder.typicode.com/todos?_limit=10`)
-    .then(res => res.json())
-}
+import axios from "axios";
 
-export const addTodoAPI = function (todo) {
-    return fetch(`https://jsonplaceholder.typicode.com/todos`, {
-        method: "POST",
-        body: JSON.stringify(todo),
-        headers: { "Content-Type": "application/json" }
-    })
-    .then(res => res.json())
-}
+const API_URL = "https://jsonplaceholder.typicode.com/todos";
 
-export const updateTodoAPI = function(todo) {
-    return fetch(`https://jsonplaceholder.typicode.com/todos/${todo.id}`, {
-        method: "PUT",
-        body: JSON.stringify(todo),
-        headers: { "Content-Type": "application/json" }
-    })
-    .then(res => res.json())
-}
+export const getTodosAPI = async function () {
+  const res = await axios.get(`${API_URL}?_limit=10`);
+  return res.data;
+};
 
-export const deleteTodoAPI = function(id) {
-    return fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
-        method: "DELETE"
-    })
-    .then(() => id)
-}
+export const addTodoAPI = async function (todo) {
+  const res = await axios.post(API_URL, todo, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+};
+
+export const updateTodoAPI = async function (todo) {
+  const res = await axios.put(`${API_URL}/${todo.id}`, todo, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.data;
+};
+
+export const deleteTodoAPI = async function (id) {
+  await axios.delete(`${API_URL}/${id}`);
+  return id; // keep same behavior as fetch version
+};

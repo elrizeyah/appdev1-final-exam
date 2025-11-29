@@ -1,35 +1,56 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function Login () {
+export default function Login() {
     const [username, setUsername] = useState("Bret");
     const [password, setPassword] = useState("");
     const [users, setUsers] = useState([]);
+    const [error, setError] = useState("");
 
     const API_URL = import.meta.env.VITE_APP_API_URL;
     const SECRET = import.meta.env.VITE_APP_SECRET_PASSWORD;
 
-    useEffect(() => {
-        fetch(`${API_URL}/users?_limit=3`)
-            .then(response => response.json())
-            .then(data => setUsers(data));
-    }, []);
+    const navigate = useNavigate();
 
-    function handleLogin() {
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await fetch(`${API_URL}/users?_limit=3`);
+                if (!response.ok) throw new Error("Failed to fetch users");
+                const data = await response.json();
+                setUsers(data);
+            } catch (err) {
+                console.error(err);
+                setError("Could not load users. Try again later.");
+            }
+        };
+
+        fetchUsers();
+    }, [API_URL]);
+
+    const handleLogin = () => {
+        setError(""); // reset error
+
+        if (!password) {
+            setError("Please enter a password.");
+            return;
+        }
+
         const foundUser = users.find(user => user.username === username);
 
         if (!foundUser) {
-            alert("Username not found!");
+            setError("Username not found!");
             return;
         }
 
         if (password !== SECRET) {
-            alert("Incorrect password!");
+            setError("Incorrect password!");
             return;
         }
 
         localStorage.setItem("loggedInUser", JSON.stringify(foundUser));
-        window.location.href = "/todos";
-    }
+        navigate("/todos"); // React Router navigation
+    };
 
     return (
         <div>
@@ -52,6 +73,8 @@ export default function Login () {
             <br />
 
             <button onClick={handleLogin}>Login</button>
+
+            {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
     );
 }
