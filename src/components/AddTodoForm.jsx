@@ -1,27 +1,28 @@
-import { useState } from "react"
-import { useDispatch } from "react-redux"
-import { addTodo } from "../features/todos/todosSlice"
+// src/components/AddTodoForm.jsx
+import React, { useState } from "react";
 
-function AddTodoForm () {
-  const [title, setTitle] = useState("")
-  const dispatch = useDispatch()
+export default function AddTodoForm({ addTodo, theme }) {
+  const [input, setInput] = useState("");
 
-  const handleAdd = () => {
-    if (title.trim() === "") return
-    dispatch(addTodo(title))
-    setTitle("")
-  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!input.trim()) return alert("You must write something!");
+    addTodo({ text: input, completed: false });
+    setInput("");
+  };
 
   return (
-    <div>
+    <form onSubmit={handleSubmit}>
       <input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Add a new task"
+        className={`${theme}-input`}
+        type="text"
+        placeholder="Add a todo..."
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
       />
-      <button onClick={handleAdd}>Add</button>
-    </div>
-  )
+      <button type="submit" className={`todo-btn ${theme}-button`}>
+        Add
+      </button>
+    </form>
+  );
 }
-
-export default AddTodoForm
